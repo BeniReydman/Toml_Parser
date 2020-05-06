@@ -1,0 +1,40 @@
+[modbus]
+    [modbus.RK30006]
+    BaudRate = 9600
+    DataBits = 8
+    Parity   = "N"
+    StopBits = 1
+    SlaveID  = 2
+    SerialTimeout = 10
+    Address = "/dev/ttyUSB0"
+    Len  = 20
+    SamplingInterval = 120
+    [modbus.HYWDC2E]
+    BaudRate = 9600
+    DataBits = 8
+    Parity   = "E"
+    StopBits = 1
+    SlaveID  = 0
+    SerialTimeout = 10
+    Address = "/dev/ttyUSB0"
+    Len  = 20
+    SamplingInterval = 120
+    [modbus.RSGZWSN012]
+    BaudRate = 4800
+    DataBits = 8
+    Parity = "N"
+    StopBits = 0
+    SlaveID = 1
+    SerialTimeout = 10
+    Address = "/dev/ttyUSB0"
+    Len = 20
+    SamplingInterval = 120
+[sensor]
+hy_wdc2e = false
+rk300_06 = false
+rs_gzws_n01_2= false
+sim7600 = false
+pms7003 = false
+bme280 = false
+
+

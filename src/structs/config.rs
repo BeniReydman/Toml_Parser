@@ -59,3 +59,13 @@ pub struct Config {
 	pub sensor: HashMap<String, bool>,
 	pub modbus: HashMap<String, ModbusConfig>
 }
+
+// Create a default empty struct
+impl Default for Config {
+    fn default () -> Config {
+		Config {
+			sensor: HashMap::new(),
+			modbus: HashMap::new(),
+		}
+	}
+}

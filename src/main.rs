@@ -16,13 +16,15 @@ fn main() {
 * to read toml files and return a struct consisting of
 * a map of sensors and modbus's
 ***/
-pub fn parse (path: String) -> Config {
+pub fn parse (path: String) -> Option<Config> {
     /* Get toml file */
     let toml_file = read_file(path);
 
-    let config: Config = toml::from_str(&toml_file).unwrap();
+    /* Attempt to Parse, if error return default empty Config */
+    let config = toml::from_str(&toml_file).unwrap_or_default();
+
     println!("{:?}", config);
-    return config;
+    Some(config)
 }
 
 /***

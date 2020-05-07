@@ -1,7 +1,7 @@
 use std::collections::HashMap;
  
 // ModbusConfig is the config for sensor using modbus
-#[derive(PartialEq, PartialOrd)]  // This allows comparisons between structs
+#[derive(PartialEq, PartialOrd, Clone, Debug)]  // This allows comparisons between structs
 pub struct ModbusConfig {
     pub baud_rate:         i32,
 	pub data_bits:         i32,

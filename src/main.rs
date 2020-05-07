@@ -28,7 +28,6 @@ pub fn parse (path: String) -> Config {
     /* Setting up config struct */
     let mut new_sensor: HashMap<String, bool> = HashMap::new();
 	let mut new_modbus: HashMap<String, ModbusConfig>  = HashMap::new();
-    let mut config_toml: Config = Config { sensor: new_sensor, modbus: new_modbus};
 
     /* Variables */
     let mut curr_type = EMPTY;
@@ -41,24 +40,25 @@ pub fn parse (path: String) -> Config {
         curr_type = check_type(line.to_string(), curr_type);
 
         /* Parse values based on line  */
-        if line.trim().chars().next().unwrap() == '[' {  // check if line starts with [ 
-            if !is_empty_modbus(curr_modbus) {  // if struct is not empty, add to map
-                new_modbus.insert(curr_modbus_name, curr_modbus);
+        if !line.trim().is_empty() && line.trim().chars().next().unwrap() == '[' {  // check if line starts with [ 
+            if !is_empty_modbus(curr_modbus.clone()) {  // if struct is not empty, add to map
+                println!("Modbus inserted: {:?}", curr_modbus);
+                new_modbus.insert(curr_modbus_name.clone(), curr_modbus.clone());
             }
             if is_new_modbus(line.to_string()) {  // if statement is for [sensor] case
                 curr_modbus_name = line.trim().chars().skip(8).collect();  // remove [modbus. from string
                 curr_modbus_name.pop();  // remove ] from the end
-                println!("{0}", curr_modbus_name.to_string());
                 curr_modbus = ModbusConfig::default();  // set as new empty config
             }
-        } else if curr_type == MODBUS {
-            parse_modbus(line.to_string(), curr_modbus);
-        } else if curr_type == SENSOR {
-            parse_sensor(line.to_string(), new_sensor);
+        } else if curr_type == MODBUS && line.len() > 1 {
+            parse_modbus(line.to_string(), &mut curr_modbus);
+        } else if curr_type == SENSOR && line.len() > 1 {
+            parse_sensor(line.to_string(), &mut new_sensor);
         }  // else ignore
 
     }
 
+    let config_toml: Config = Config { sensor: new_sensor, modbus: new_modbus};
     return config_toml;
 }
 
@@ -132,7 +132,7 @@ pub fn is_new_modbus(line: String) -> bool {
 ***/
 pub fn is_empty_modbus(mod_config: ModbusConfig) -> bool {
     /* Creating empty struct */
-    let mut empty_modbus = ModbusConfig::default();
+    let empty_modbus = ModbusConfig::default();
 
     if  empty_modbus == mod_config {
         return true;
@@ -147,36 +147,36 @@ pub fn is_empty_modbus(mod_config: ModbusConfig) -> bool {
 * Purpose:
 * Parses line that involve modbus
 ***/
-pub fn parse_modbus(line: String, mod_config: ModbusConfig)
+pub fn parse_modbus(line: String, mod_config: &mut ModbusConfig)
 {
     let v: Vec<&str> = line.split("=").collect();
 
-    let comparitor = v[0].trim().to_string();
+    let comparitor = v[0].trim().to_lowercase();
     let value = v[1].trim().to_string();
     
     /* ***REFACTOR this is awful*** */
-    if comparitor == "baud_rate" {
+    if comparitor == "baudrate" {
         mod_config.baud_rate = value.parse::<i32>().unwrap();
     } else
-	if comparitor == "data_bits" {
+	if comparitor == "databits" {
         mod_config.data_bits = value.parse::<i32>().unwrap();
     } else
 	if comparitor == "parity" {
         mod_config.parity = value;
     } else
-	if comparitor == "stop_bits" {
+	if comparitor == "stopbits" {
         mod_config.stop_bits = value.parse::<i32>().unwrap();
     } else
-	if comparitor== "slave_id" {
+	if comparitor== "slaveid" {
         mod_config.slave_id = value.parse::<i8>().unwrap();
     } else
-	if comparitor == "serial_timeout" {
+	if comparitor == "serialtimeout" {
         mod_config.serial_timeout = value.parse::<i32>().unwrap();
     } else
 	if comparitor == "address" {
         mod_config.address = value;
     } else
-	if comparitor == "sampling_interval" {
+	if comparitor == "samplinginterval" {
         mod_config.sampling_interval = value.parse::<i32>().unwrap();
     }
 }
@@ -187,13 +187,14 @@ pub fn parse_modbus(line: String, mod_config: ModbusConfig)
 * Purpose:
 * Parses line that involve sensor
 ***/
-pub fn parse_sensor(line: String, sensor_map: HashMap<String, bool>)
+pub fn parse_sensor(line: String, sensor_map: &mut HashMap<String, bool>)
 {
     let v: Vec<&str> = line.split("=").collect();
     if v[1].trim().to_string() == "false" {
+        println!("Sensor is: {:?}", v[0].trim().to_string());
         sensor_map.insert(v[0].trim().to_string(), false);
     } else {
+        println!("Sensor inserted: {:?}", v[0].trim().to_string());
         sensor_map.insert(v[0].trim().to_string(), true);
     }
-    
 }
